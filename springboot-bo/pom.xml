@@ -3,21 +3,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.5</version>
+		<groupId>com.kafka</groupId>
+		<artifactId>springboot-kafka</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>com.kafka</groupId>
-	<artifactId>springboot-kafka</artifactId>
+	<groupId>com.kafka.bo</groupId>
+	<artifactId>springboot-bo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>springboot-kafka</name>
+	<name>springboot-bo</name>
 	<description>Demo project for Spring Boot</description>
-	<packaging>pom</packaging>
-	<modules>
-		<module>springboot-bo</module>
-		<module>springboot-producer</module>
-		<module>springboot-consumer</module>
-	</modules>
 	<url/>
 	<licenses>
 		<license/>
@@ -59,6 +53,10 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
 		</dependency>
 	</dependencies>
 
