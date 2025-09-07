@@ -28,8 +28,11 @@ public class KafkaConsumerListener {
     @KafkaListener(topics = {
             "springboot-topic-consent" }, groupId = "group-id-consent", containerFactory = "consumerConsent")
     public void listenerJson(ConsumerRecord<String, Consent> consumerRecord) {
+        if (!consumerRecord.value().getType().equals("INQ")) {
+            throw new IllegalArgumentException("Unsupported type " + consumerRecord.value().getType());
+        }
         ConsentEntity consentEntity = ConsentMapper.MAPPER.mapToConsentEntity(consumerRecord.value());
-        consentService.createUser(consentEntity);
+        consentService.createConsent(consentEntity);
         LOGGER.info("Consent updated | {} | {} | {} | {} | {}", consumerRecord.value().getReference(),
                 consumerRecord.value().getType(), consumerRecord.value().getDocument(),
                 consumerRecord.value().getName(), consumerRecord.value().isGranted());

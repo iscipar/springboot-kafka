@@ -13,6 +13,7 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import com.kafka.bo.springboot_bo.model.Consent;
+import com.kafka.consumer.springboot_consumer.handler.GlobalErrorHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,6 +65,7 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(consumerFactoryConsent());
         factory.setRecordFilterStrategy(
                 record -> record.value().getDocument().isEmpty() || record.value().getReference().isEmpty());
+        factory.setCommonErrorHandler(new GlobalErrorHandler());
         return factory;
     }
 }

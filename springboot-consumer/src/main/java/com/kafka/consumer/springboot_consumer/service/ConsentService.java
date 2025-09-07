@@ -12,7 +12,7 @@ public class ConsentService {
     @Autowired
     private ConsentRepository consentRepository;
 
-    public ConsentEntity createUser(ConsentEntity consentEntity) {
+    public ConsentEntity createConsent(ConsentEntity consentEntity) {
         return consentRepository.save(consentEntity);
     }
 }
