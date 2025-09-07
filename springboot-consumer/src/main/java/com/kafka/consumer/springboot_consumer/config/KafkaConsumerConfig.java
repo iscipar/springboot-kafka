@@ -62,6 +62,8 @@ public class KafkaConsumerConfig {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Consent>> consumerConsent() {
         ConcurrentKafkaListenerContainerFactory<String, Consent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactoryConsent());
+        factory.setRecordFilterStrategy(
+                record -> record.value().getDocument().isEmpty() || record.value().getReference().isEmpty());
         return factory;
     }
 }
