@@ -12,6 +12,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
+import com.kafka.bo.springboot_bo.avro.Employee;
 import com.kafka.bo.springboot_bo.model.Consent;
 import com.kafka.consumer.springboot_consumer.handler.GlobalErrorHandler;
 
@@ -41,6 +42,16 @@ public class KafkaConsumerConfig {
         return properties;
     }
 
+    public Map<String, Object> consumerConfigAvro() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                io.confluent.kafka.serializers.KafkaAvroDeserializer.class);
+        properties.put("schema.registry.url", "http://localhost:8081");
+        return properties;
+    }
+
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfig());
@@ -66,6 +77,18 @@ public class KafkaConsumerConfig {
         factory.setRecordFilterStrategy(
                 record -> record.value().getDocument().isEmpty() || record.value().getReference().isEmpty());
         factory.setCommonErrorHandler(new GlobalErrorHandler());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, Employee> consumerFactoryEmployee() {
+        return new DefaultKafkaConsumerFactory<>(consumerConfigAvro());
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Employee>> consumerEmployee() {
+        ConcurrentKafkaListenerContainerFactory<String, Employee> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactoryEmployee());
         return factory;
     }
 }

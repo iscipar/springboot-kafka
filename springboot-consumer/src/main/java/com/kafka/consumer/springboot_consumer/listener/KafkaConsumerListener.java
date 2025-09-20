@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
 
+import com.kafka.bo.springboot_bo.avro.Employee;
 import com.kafka.bo.springboot_bo.model.Consent;
 import com.kafka.consumer.springboot_consumer.jpa.entity.ConsentEntity;
 import com.kafka.consumer.springboot_consumer.mapper.ConsentMapper;
@@ -36,5 +37,12 @@ public class KafkaConsumerListener {
         LOGGER.info("Consent updated | {} | {} | {} | {} | {}", consumerRecord.value().getReference(),
                 consumerRecord.value().getType(), consumerRecord.value().getDocument(),
                 consumerRecord.value().getName(), consumerRecord.value().isGranted());
+    }
+
+    @KafkaListener(topics = {
+            "springboot-topic-employee" }, groupId = "group-id-employee", containerFactory = "consumerEmployee")
+    public void listenerAvro(ConsumerRecord<String, Employee> consumerRecord) {
+        LOGGER.info("Employee detail | {} | {} | {}", consumerRecord.value().getId(),
+                consumerRecord.value().getName(), consumerRecord.value().getDepartment());
     }
 }

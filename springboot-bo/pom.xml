@@ -28,7 +28,16 @@
 	<properties>
 		<java.version>21</java.version>
 		<org.projectlombok.version>1.18.38</org.projectlombok.version>
+		<io.confluent.version>7.9.2</io.confluent.version>
+		<org.apache.avro.version>1.12.0</org.apache.avro.version>
 	</properties>
+	<repositories>
+    	<repository>
+        	<id>confluent</id>
+        	<name>Confluent Maven Repository</name>
+        	<url>https://packages.confluent.io/maven/</url>
+    	</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -60,6 +69,15 @@
 			<artifactId>lombok</artifactId>
 			<version>${org.projectlombok.version}</version>
 		</dependency>
+		<dependency>
+        	<groupId>io.confluent</groupId>
+        	<artifactId>kafka-avro-serializer</artifactId>
+        	<version>${io.confluent.version}</version>
+    	</dependency>
+		<dependency>
+        	<groupId>com.fasterxml.jackson.core</groupId>
+        	<artifactId>jackson-databind</artifactId>
+    	</dependency>
 	</dependencies>
 
 	<build>
@@ -67,6 +85,23 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+    			<groupId>org.apache.avro</groupId>
+    			<artifactId>avro-maven-plugin</artifactId>
+    			<version>${org.apache.avro.version}</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>schema</goal>
+						</goals>
+						<configuration>
+							<sourceDirectory>${project.basedir}/src/main/resources/avro</sourceDirectory>
+							<outputDirectory>${project.basedir}/src/main/java</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

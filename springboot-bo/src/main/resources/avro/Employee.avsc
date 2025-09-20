@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "name": "Employee",
+  "namespace": "com.kafka.bo.springboot_bo.avro",
+  "fields": [
+    { "name": "id", "type": "string" },
+    { "name": "name", "type": "string" },
+    { "name": "department", "type": "string" }
+  ]
+}
