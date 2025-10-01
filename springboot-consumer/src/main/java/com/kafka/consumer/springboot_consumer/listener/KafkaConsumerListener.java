@@ -40,6 +40,16 @@ public class KafkaConsumerListener {
     }
 
     @KafkaListener(topics = {
+            "springboot-topic-consent-transactional" }, groupId = "group-id-consent-transactional", containerFactory = "consumerConsentTransactional")
+    public void listenerJsonTransactional(ConsumerRecord<String, Consent> consumerRecord) {
+        ConsentEntity consentEntity = ConsentMapper.MAPPER.mapToConsentEntity(consumerRecord.value());
+        consentService.createConsent(consentEntity);
+        LOGGER.info("Consent updated | {} | {} | {} | {} | {}", consumerRecord.value().getReference(),
+                consumerRecord.value().getType(), consumerRecord.value().getDocument(),
+                consumerRecord.value().getName(), consumerRecord.value().isGranted());
+    }
+
+    @KafkaListener(topics = {
             "springboot-topic-employee" }, groupId = "group-id-employee", containerFactory = "consumerEmployee")
     public void listenerAvro(ConsumerRecord<String, Employee> consumerRecord) {
         LOGGER.info("Employee detail | {} | {} | {}", consumerRecord.value().getId(),

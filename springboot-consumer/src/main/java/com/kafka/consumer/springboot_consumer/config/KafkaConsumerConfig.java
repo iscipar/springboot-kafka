@@ -10,7 +10,10 @@ import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.util.backoff.FixedBackOff;
 
 import com.kafka.bo.springboot_bo.avro.Employee;
 import com.kafka.bo.springboot_bo.model.Consent;
@@ -39,6 +42,17 @@ public class KafkaConsumerConfig {
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         properties.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        return properties;
+    }
+
+    public Map<String, Object> consumerConfigJsonTransactional() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        properties.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        properties.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
         return properties;
     }
 
@@ -77,6 +91,23 @@ public class KafkaConsumerConfig {
         factory.setRecordFilterStrategy(
                 record -> record.value().getDocument().isEmpty() || record.value().getReference().isEmpty());
         factory.setCommonErrorHandler(new GlobalErrorHandler());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, Consent> consumerFactoryConsentTransactional() {
+        return new DefaultKafkaConsumerFactory<>(consumerConfigJsonTransactional(), new StringDeserializer(),
+                new JsonDeserializer<>(Consent.class));
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Consent>> consumerConsentTransactional() {
+        ConcurrentKafkaListenerContainerFactory<String, Consent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactoryConsentTransactional());
+        factory.setRecordFilterStrategy(
+                record -> record.value().getDocument().isEmpty() || record.value().getReference().isEmpty());
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
+        factory.setCommonErrorHandler(new DefaultErrorHandler(new FixedBackOff(4000L, 4L)));
         return factory;
     }
 

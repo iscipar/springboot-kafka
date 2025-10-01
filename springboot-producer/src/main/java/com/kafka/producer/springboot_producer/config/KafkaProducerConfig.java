@@ -9,6 +9,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.kafka.transaction.KafkaTransactionManager;
 
 import com.kafka.bo.springboot_bo.avro.Employee;
 import com.kafka.bo.springboot_bo.model.Consent;
@@ -38,6 +39,17 @@ public class KafkaProducerConfig {
         return properties;
     }
 
+    public Map<String, Object> producerConfigJsonTransactional() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        properties.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "transaction-id");
+        properties.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        properties.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 2);
+        return properties;
+    }
+
     public Map<String, Object> producerConfigAvro() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -59,6 +71,11 @@ public class KafkaProducerConfig {
     }
 
     @Bean
+    public ProducerFactory<String, Consent> producerFactoryConsentTransactional() {
+        return new DefaultKafkaProducerFactory<>(producerConfigJsonTransactional());
+    }
+
+    @Bean
     public ProducerFactory<String, Employee> producerFactoryEmployee() {
         return new DefaultKafkaProducerFactory<>(producerConfigAvro());
     }
@@ -72,6 +89,17 @@ public class KafkaProducerConfig {
     public KafkaTemplate<String, Consent> kafkaTemplateConsent(
             ProducerFactory<String, Consent> producerFactoryConsent) {
         return new KafkaTemplate<>(producerFactoryConsent);
+    }
+
+    @Bean
+    public KafkaTemplate<String, Consent> kafkaTemplateConsentTransactional(
+            ProducerFactory<String, Consent> producerFactoryConsentTransactional) {
+        return new KafkaTemplate<>(producerFactoryConsentTransactional);
+    }
+
+    @Bean
+    public KafkaTransactionManager kafkaConsentTransactionManager() {
+        return new KafkaTransactionManager<>(producerFactoryConsentTransactional());
     }
 
     @Bean
