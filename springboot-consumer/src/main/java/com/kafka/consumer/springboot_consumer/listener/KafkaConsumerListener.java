@@ -5,7 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 
 import com.kafka.bo.springboot_bo.avro.Employee;
 import com.kafka.bo.springboot_bo.model.Consent;
@@ -54,5 +58,21 @@ public class KafkaConsumerListener {
     public void listenerAvro(ConsumerRecord<String, Employee> consumerRecord) {
         LOGGER.info("Employee detail | {} | {} | {}", consumerRecord.value().getId(),
                 consumerRecord.value().getName(), consumerRecord.value().getDepartment());
+    }
+
+    @RetryableTopic(attempts = "4")
+    @KafkaListener(topics = "springboot-topic-retryable", groupId = "group-id-retryable")
+    public void listenerRetryable(String message,
+            @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+            @Header(KafkaHeaders.OFFSET) long offset) {
+        int number = Integer.parseInt(message);
+        LOGGER.info("Message received | {}", message);
+    }
+
+    @DltHandler
+    public void handleDlt(String message,
+            @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+            @Header(KafkaHeaders.OFFSET) long offset) {
+        LOGGER.warn("Message failed");
     }
 }

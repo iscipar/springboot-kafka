@@ -71,4 +71,19 @@ public class KafkaTopicConfig {
                 .configs(configurations)
                 .build();
     }
+
+    @Bean
+    public NewTopic generateTopicRetryable() {
+        Map<String, String> configurations = new HashMap<>();
+        configurations.put(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_DELETE);
+        configurations.put(TopicConfig.RETENTION_MS_CONFIG, "604800000");
+        configurations.put(TopicConfig.SEGMENT_BYTES_CONFIG, "1073741824");
+        configurations.put(TopicConfig.MAX_MESSAGE_BYTES_CONFIG, "1048588");
+
+        return TopicBuilder.name("springboot-topic-retryable")
+                .partitions(1)
+                .replicas(1)
+                .configs(configurations)
+                .build();
+    }
 }
